@@ -1,0 +1,19 @@
+image: subosito/flutter:stable
+
+before_script:
+  - flutter clean
+  - flutter pub get
+
+cache:
+  paths:
+    - .pub-cache/
+
+pages:
+  script:
+    - flutter build web --release --web-renderer html
+    - cp -r build/web/* public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
