@@ -6,16 +6,28 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Безопасный менеджер паролей">
+  <meta name="description" content="Менеджер паролей">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- PWA настройки -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Password Manager">
+  <meta name="apple-mobile-web-app-title" content="Password manager">
   
   <!-- Theme Color -->
   <meta name="theme-color" content="#4A6FA5">
+  
+  <!-- Open Graph для соцсетей -->
+  <meta property="og:title" content="Password manager">
+  <meta property="og:description" content="Храните свои пароли в удобном месте">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rushaks.github.io/password_manager_web/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Password manager">
+  <meta name="twitter:description" content="Храните свои пароли в удобном месте">
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -25,62 +37,93 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
 
-  <!-- Apple Touch Icons -->
+  <!-- Apple Touch Icons (упрощенный вариант) -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
+  <!-- Альтернативный вариант с размерами -->
+  <!--
+  <link rel="apple-touch-icon" sizes="57x57" href="icons/icon-57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="icons/icon-60.png">
   <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
-  <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="icons/icon-76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="icons/icon-114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png">
   <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
   <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-167.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="384x384" href="icons/icon-384.png">
   <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+  -->
 
-  <!-- Title -->
-  <title>Password Manager</title>
+  <!-- Preload критических ресурсов -->
+  <link rel="preload" href="flutter_bootstrap.js" as="script">
+  <link rel="preload" href="main.dart.js" as="script">
+  <link rel="preload" href="assets/AssetManifest.bin.json" as="fetch">
+  <link rel="preload" href="assets/FontManifest.json" as="fetch">
 
-  <!-- Стили для предотвращения белого экрана -->
+  <!-- Стили для начального экрана -->
   <style>
     body {
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background-color: #4A6FA5;
     }
-    #app {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    /* Скелетон-загрузка */
+    /* Стиль для загрузки */
     .loading-container {
-      text-align: center;
-      animation: fadeIn 0.5s ease-in;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-size: 18px;
     }
-    .loading-icon {
-      font-size: 64px;
-      color: #4A6FA5;
-      animation: pulse 1.5s ease-in-out infinite;
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #ffffff;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 16px;
     }
-    .loading-text {
-      margin-top: 16px;
-      font-size: 20px;
-      font-weight: 600;
-      color: #2C3E50;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.7; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
+  <!-- Начальный экран загрузки -->
+  <div id="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <span>Загрузка приложения...</span>
+  </div>
 
   <!-- Загрузка Flutter -->
   <script src="flutter_bootstrap.js" async></script>
+  
+  <script>
+    // Скрываем начальный экран после загрузки Flutter
+    document.addEventListener('DOMContentLoaded', function() {
+      // Проверяем, загрузился ли Flutter
+      const checkFlutter = setInterval(function() {
+        if (document.getElementById('flt-initialize')) {
+          clearInterval(checkFlutter);
+          // Плавно скрываем начальный экран
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.transition = 'opacity 0.5s';
+            loading.style.opacity = '0';
+            setTimeout(() => {
+              loading.style.display = 'none';
+            }, 500);
+          }
+        }
+      }, 100);
+    });
+  </script>
 </body>
 </html>
